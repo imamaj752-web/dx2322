@@ -17,7 +17,7 @@ def register():
         else:
             password_hash = generate_password_hash(password)
 
-            flash(f'Компанія {name_company} зареєстрована!', category='success')
+            flash(f'Компания {name_company} зарегестрована!', category='success')
             add_company(name_company, password_hash)
 
             return redirect(url_for('auth.login'))
