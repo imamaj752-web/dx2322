@@ -31,7 +31,7 @@ def edit(name):
         price = request.form.get('price')
         category_id = request.form.get('category')
         update_product(name, price, category_id, company.id)
-        flash('Товар оновлено!', category='success')
+        flash('Товар обновлено', category='success')
         return redirect(url_for('product.index'))
 
     return render_template('product/edit.html', product=product, categories=categories)

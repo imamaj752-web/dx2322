@@ -13,22 +13,22 @@ def register():
         password = request.form.get('password')
 
         if not name_company:
-            flash('Логін не може бути порожнім!', category='danger')
+            flash('Логін не может быть неправильним!', category='danger')
             return redirect(url_for('auth.register'))
 
         if (len(password) < 6 or
                 not re.search(r"[a-zA-Z]", password) or
                 not re.search(r"\d", password) or
                 not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)):
-            flash('Пароль занадто слабкий! Треба 6+ символів, літеру, цифру та спецсимвол.', category='danger')
+            flash('пароль сильно слабый.', category='danger')
             return redirect(url_for('auth.register'))
 
         if company_exists(name_company):
-            flash('Така компанія вже є!', category='danger')
+            flash('такая компания уже есть', category='danger')
             return redirect(url_for('auth.register'))
 
         add_company(name_company, generate_password_hash(password))
-        flash('Реєстрація успішна!', category='success')
+        flash('рег успешен', category='success')
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
@@ -45,12 +45,12 @@ def login():
             session['company_name'] = name
             return redirect(url_for('product.index'))
 
-        flash('Невірний логін або пароль', category='danger')
+        flash('неправильниц пароль или рег', category='danger')
     return render_template('auth/login.html')
 
 
 @auth_bp.route('/logout')
 def logout():
     session.pop('company_name', None)
-    flash('Ви вийшли з системи', category='info')
+    flash('вы вышли из системи', category='info')
     return redirect(url_for('auth.login'))
