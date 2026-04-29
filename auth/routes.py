@@ -1,5 +1,6 @@
+import re
 from flask import Blueprint, request, render_template, url_for, session, redirect, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from action_db import *
 
 auth_bp = Blueprint('auth', __name__, template_folder='templates')
@@ -8,43 +9,33 @@ auth_bp = Blueprint('auth', __name__, template_folder='templates')
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name_company = request.form.get('name_company').lower()
+        name_company = request.form.get('name_company').strip().lower()
         password = request.form.get('password')
 
-        if company_exists(name_company):
-            flash('Така компанія вже є!', category='danger')
+        if not name_company:
+            flash('пароль не може бути порожнім', category='danger')
             return redirect(url_for('auth.register'))
-        else:
-            # отримуємо хеш паролю
-            password_hash = generate_password_hash(password)
 
-            flash(f'Компанія {name_company} зареєстрована!', category='success')
-            add_company(name_company, password_hash)
+        if (len(password) < 6 or
+                not re.search(r"[a-zA-Z]", password) or
+                not re.search(r"\d", password) or
+                not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)):
+            flash('пароль сильно слабкий', category='danger')
+            return redirect(url_for('auth.register'))
 
-            return redirect(url_for('auth.login'))
+        if company_exists(name_company):
+            flash('такая компания уже есть', category='danger')
+            return redirect(url_for('auth.register'))
+
+        password_hash = generate_password_hash(password)
+        add_company(name_company, password_hash)
+        return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
 
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        name_company = request.form.get('name_company').lower()
-        password = request.form.get('password')
-
-        if not company_exists(name_company):
-            flash(f'Компанія {name_company} НЕ ІСНУЄ!', category='danger')
-            return redirect(url_for('auth.login'))
-
-        company = get_company_by_name(name_company)
-        if not check_password_hash(company.password, password):
-            flash(f'Пароль НЕкоректний', category='danger')
-            return redirect(url_for('auth.login'))
-
-        # зберігаємо в cookie файл запис про назву компанії
-        session['company_name'] = company.name
-
-        flash(f'Вітаємо, {company.name}!', category='info')
-        return redirect(url_for('product.index'))
-
-    return render_template('auth/login.html')
+@auth_bp.route('/logout')
+def logout():
+    session.pop('company_name', None)
+    flash('вы вышли из системи', category='info')
+    return redirect(url_for('auth.login'))
