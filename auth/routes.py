@@ -12,10 +12,9 @@ def register():
         password = request.form.get('password')
 
         if company_exists(name_company):
-            flash('Така компанія вже є!', category='danger')
+            flash('такая компания уже есть', category='danger')
             return redirect(url_for('auth.register'))
         else:
-            # отримуємо хеш паролю
             password_hash = generate_password_hash(password)
 
             flash(f'Компанія {name_company} зареєстрована!', category='success')
@@ -33,18 +32,17 @@ def login():
         password = request.form.get('password')
 
         if not company_exists(name_company):
-            flash(f'Компанія {name_company} НЕ ІСНУЄ!', category='danger')
+            flash(f'Компание {name_company} нетк', category='danger')
             return redirect(url_for('auth.login'))
 
         company = get_company_by_name(name_company)
         if not check_password_hash(company.password, password):
-            flash(f'Пароль НЕкоректний', category='danger')
+            flash(f'пароль некорект', category='danger')
             return redirect(url_for('auth.login'))
 
-        # зберігаємо в cookie файл запис про назву компанії
         session['company_name'] = company.name
 
-        flash(f'Вітаємо, {company.name}!', category='info')
+        flash(f'поздравляем, {company.name}!', category='info')
         return redirect(url_for('product.index'))
 
     return render_template('auth/login.html')
