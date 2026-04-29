@@ -2,7 +2,7 @@ from flask import Flask
 from models import init_db
 
 # імпортація BLUEPRINT
-from product.routes import product_bp
+from product.routes1 import product_bp
 from auth.routes import auth_bp
 
 app = Flask(__name__)
